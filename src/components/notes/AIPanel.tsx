@@ -142,7 +142,7 @@ const AIPanel = ({ note }: AIPanelProps) => {
           <div className="bg-gradient-accent p-2 rounded-lg">
             <Sparkles className="w-4 h-4 text-accent-foreground" />
           </div>
-          <h2 className="font-semibold text-foreground">AI Assistant</h2>
+          <h2 className="font-semibold text-foreground">Nova AI</h2>
         </div>
         
         <Button
