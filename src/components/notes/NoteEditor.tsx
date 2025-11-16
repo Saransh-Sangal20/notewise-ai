@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Note } from "@/pages/Notes";
@@ -12,26 +12,42 @@ interface NoteEditorProps {
 const NoteEditor = ({ note, onUpdateNote }: NoteEditorProps) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const titleDebounceRef = useRef<NodeJS.Timeout>();
+  const contentDebounceRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
     if (note) {
       setTitle(note.title);
       setContent(note.content);
     }
-  }, [note]);
+  }, [note?.id]);
 
   const handleTitleChange = (value: string) => {
     setTitle(value);
-    if (note) {
-      onUpdateNote(note.id, { title: value });
+    
+    if (titleDebounceRef.current) {
+      clearTimeout(titleDebounceRef.current);
     }
+    
+    titleDebounceRef.current = setTimeout(() => {
+      if (note) {
+        onUpdateNote(note.id, { title: value });
+      }
+    }, 500);
   };
 
   const handleContentChange = (value: string) => {
     setContent(value);
-    if (note) {
-      onUpdateNote(note.id, { content: value });
+    
+    if (contentDebounceRef.current) {
+      clearTimeout(contentDebounceRef.current);
     }
+    
+    contentDebounceRef.current = setTimeout(() => {
+      if (note) {
+        onUpdateNote(note.id, { content: value });
+      }
+    }, 500);
   };
 
   if (!note) {
