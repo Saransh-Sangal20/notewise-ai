@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trash2, FileText } from "lucide-react";
+import { Trash2, FileText, Clock, Type } from "lucide-react";
 import { Note } from "@/pages/Notes";
 import { formatDistanceToNow } from "date-fns";
 import {
@@ -36,76 +36,100 @@ const NotesList = ({ notes, selectedNote, onSelectNote, onDeleteNote }: NotesLis
           </div>
         ) : (
           <div className="space-y-3">
-            {notes.map((note) => (
-              <Card
-                key={note.id}
-                className={`group relative overflow-hidden cursor-pointer transition-all duration-300 ${
-                  selectedNote?.id === note.id
-                    ? "bg-gradient-subtle border-primary/50 shadow-elegant ring-1 ring-primary/20"
-                    : "bg-card/50 backdrop-blur-sm hover:bg-gradient-subtle hover:shadow-soft hover:border-primary/30"
-                }`}
-                onClick={() => onSelectNote(note)}
-              >
-                {selectedNote?.id === note.id && (
-                  <div className="absolute inset-0 bg-gradient-primary opacity-5" />
-                )}
-                
-                <div className="relative p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0 space-y-2">
-                      <div className="flex items-center gap-2">
-                        <div className={`w-1.5 h-1.5 rounded-full transition-colors ${
-                          selectedNote?.id === note.id ? "bg-primary" : "bg-muted-foreground/40"
-                        }`} />
-                        <h3 className="font-semibold text-foreground truncate">
+            {notes.map((note) => {
+              const wordCount = note.content ? note.content.split(/\s+/).filter(Boolean).length : 0;
+              const charCount = note.content?.length || 0;
+              
+              return (
+                <Card
+                  key={note.id}
+                  className={`group relative overflow-hidden cursor-pointer transition-all duration-300 border-l-4 ${
+                    selectedNote?.id === note.id
+                      ? "bg-gradient-subtle border-l-primary border-primary/50 shadow-elegant"
+                      : "bg-card/50 backdrop-blur-sm border-l-border hover:border-l-primary/60 hover:bg-gradient-subtle hover:shadow-soft"
+                  }`}
+                  onClick={() => onSelectNote(note)}
+                >
+                  <div className="p-4 space-y-3">
+                    {/* Header with title and delete button */}
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <div className={`p-1.5 rounded-md transition-colors ${
+                          selectedNote?.id === note.id 
+                            ? "bg-primary/10" 
+                            : "bg-muted/50 group-hover:bg-primary/10"
+                        }`}>
+                          <FileText className={`w-3.5 h-3.5 ${
+                            selectedNote?.id === note.id ? "text-primary" : "text-muted-foreground"
+                          }`} />
+                        </div>
+                        <h3 className="font-semibold text-base text-foreground truncate">
                           {note.title || "Untitled Note"}
                         </h3>
                       </div>
                       
-                      <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed pl-3.5">
-                        {note.content || "No content"}
-                      </p>
-                      
-                      <div className="flex items-center gap-2 pl-3.5">
-                        <div className="h-px flex-1 bg-border/50" />
-                        <p className="text-xs text-muted-foreground/80 font-medium">
-                          {formatDistanceToNow(new Date(note.updated_at), { addSuffix: true })}
-                        </p>
-                      </div>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild onClick={(e) => e.stopPropagation()}>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-all text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Note</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete this note? This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => onDeleteNote(note.id)}
+                              className="bg-destructive hover:bg-destructive/90"
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
                     
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild onClick={(e) => e.stopPropagation()}>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent onClick={(e) => e.stopPropagation()}>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Note</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Are you sure you want to delete this note? This action cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => onDeleteNote(note.id)}
-                            className="bg-destructive hover:bg-destructive/90"
-                          >
-                            Delete
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                    {/* Content preview with fade effect */}
+                    <div className="relative">
+                      <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                        {note.content || "No content yet. Start writing..."}
+                      </p>
+                      <div className="absolute bottom-0 inset-x-0 h-4 bg-gradient-to-t from-card to-transparent pointer-events-none" />
+                    </div>
+                    
+                    {/* Footer with metadata */}
+                    <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground/70">
+                        <div className="flex items-center gap-1">
+                          <Type className="w-3 h-3" />
+                          <span>{wordCount} words</span>
+                        </div>
+                        <div className="w-1 h-1 rounded-full bg-muted-foreground/30" />
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          <span>{formatDistanceToNow(new Date(note.updated_at), { addSuffix: true })}</span>
+                        </div>
+                      </div>
+                      
+                      {charCount > 500 && (
+                        <div className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                          Long
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </Card>
-            ))}
+                </Card>
+              );
+            })}
           </div>
         )}
       </div>
