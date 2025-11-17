@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trash2, FileText, Clock, Type } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Trash2, FileText, Clock, Type, Tag } from "lucide-react";
 import { Note } from "@/pages/Notes";
 import { formatDistanceToNow } from "date-fns";
 import {
@@ -46,24 +47,24 @@ const NotesList = ({ notes, selectedNote, onSelectNote, onDeleteNote }: NotesLis
                   className={`group relative overflow-hidden cursor-pointer transition-all duration-300 border-l-4 ${
                     selectedNote?.id === note.id
                       ? "bg-gradient-subtle border-l-primary border-primary/50 shadow-elegant"
-                      : "bg-card/50 backdrop-blur-sm border-l-border hover:border-l-primary/60 hover:bg-gradient-subtle hover:shadow-soft"
+                      : "bg-card backdrop-blur-sm border-l-border hover:border-l-primary/60 hover:bg-gradient-subtle hover:shadow-soft"
                   }`}
                   onClick={() => onSelectNote(note)}
                 >
-                  <div className="p-4 space-y-3">
+                  <div className="p-5 space-y-3">
                     {/* Header with title and delete button */}
                     <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <div className={`p-1.5 rounded-md transition-colors ${
+                      <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                        <div className={`p-2 rounded-lg transition-colors ${
                           selectedNote?.id === note.id 
-                            ? "bg-primary/10" 
-                            : "bg-muted/50 group-hover:bg-primary/10"
+                            ? "bg-primary/15" 
+                            : "bg-muted/60 group-hover:bg-primary/15"
                         }`}>
-                          <FileText className={`w-3.5 h-3.5 ${
+                          <FileText className={`w-4 h-4 ${
                             selectedNote?.id === note.id ? "text-primary" : "text-muted-foreground"
                           }`} />
                         </div>
-                        <h3 className="font-semibold text-base text-foreground truncate">
+                        <h3 className="font-bold text-lg text-foreground truncate">
                           {note.title || "Untitled Note"}
                         </h3>
                       </div>
@@ -73,9 +74,9 @@ const NotesList = ({ notes, selectedNote, onSelectNote, onDeleteNote }: NotesLis
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-all text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
+                            className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-all text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
                           >
-                            <Trash2 className="w-3.5 h-3.5" />
+                            <Trash2 className="w-4 h-4" />
                           </Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent onClick={(e) => e.stopPropagation()}>
@@ -98,30 +99,45 @@ const NotesList = ({ notes, selectedNote, onSelectNote, onDeleteNote }: NotesLis
                       </AlertDialog>
                     </div>
                     
-                    {/* Content preview with fade effect */}
-                    <div className="relative">
-                      <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                    {/* Tags section */}
+                    {note.tags && note.tags.length > 0 && (
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Tag className="w-3.5 h-3.5 text-muted-foreground" />
+                        {note.tags.map((tag, index) => (
+                          <Badge 
+                            key={index} 
+                            variant="secondary"
+                            className="text-xs px-2 py-0.5 bg-primary/10 text-primary hover:bg-primary/20 border-0"
+                          >
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {/* Content preview - More visible */}
+                    <div className="bg-muted/30 rounded-lg p-3 min-h-[60px]">
+                      <p className="text-sm text-foreground/80 line-clamp-2 leading-relaxed font-medium">
                         {note.content || "No content yet. Start writing..."}
                       </p>
-                      <div className="absolute bottom-0 inset-x-0 h-4 bg-gradient-to-t from-card to-transparent pointer-events-none" />
                     </div>
                     
                     {/* Footer with metadata */}
                     <div className="flex items-center justify-between pt-2 border-t border-border/50">
-                      <div className="flex items-center gap-3 text-xs text-muted-foreground/70">
-                        <div className="flex items-center gap-1">
-                          <Type className="w-3 h-3" />
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1.5 font-medium">
+                          <Type className="w-3.5 h-3.5" />
                           <span>{wordCount} words</span>
                         </div>
-                        <div className="w-1 h-1 rounded-full bg-muted-foreground/30" />
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
+                        <div className="w-1 h-1 rounded-full bg-muted-foreground/40" />
+                        <div className="flex items-center gap-1.5 font-medium">
+                          <Clock className="w-3.5 h-3.5" />
                           <span>{formatDistanceToNow(new Date(note.updated_at), { addSuffix: true })}</span>
                         </div>
                       </div>
                       
                       {charCount > 500 && (
-                        <div className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                        <div className="px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold">
                           Long
                         </div>
                       )}

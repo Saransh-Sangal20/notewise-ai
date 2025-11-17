@@ -15,6 +15,7 @@ export interface Note {
   created_at: string;
   updated_at: string;
   user_id: string;
+  tags: string[];
 }
 
 const Notes = () => {
@@ -82,6 +83,7 @@ const Notes = () => {
           title: "Untitled Note",
           content: "",
           user_id: user.id,
+          tags: [],
         },
       ])
       .select()
